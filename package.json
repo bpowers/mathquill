@@ -14,9 +14,10 @@
     "quickstart.html"
   ],
   "devDependencies": {
-    "pjs": ">=3.1.0 <5.0.0",
-    "mocha": ">=2.4.1",
-    "uglify-js": "2.x",
-    "less": ">=1.5.1"
+    "jquery": "^3.5.1",
+    "less": "^4.1.1",
+    "mocha": "^8.2.1",
+    "pjs": "^4.0.0",
+    "uglify-js": "^3.12.7"
   }
 }
