@@ -6,8 +6,8 @@
  *
  ********************************************/
 
-var Controller = P(function(_) {
-  _.init = function(root, container, options) {
+var Controller = P(function (_) {
+  _.init = function (root, container, options) {
     this.id = root.id;
     this.data = {};
 
@@ -21,7 +21,7 @@ var Controller = P(function(_) {
     // TODO: stop depending on root.cursor, and rm it
   };
 
-  _.handle = function(name, dir) {
+  _.handle = function (name, dir) {
     var handlers = this.options.handlers;
     if (handlers && handlers.fns[name]) {
       var mq = handlers.APIClasses[this.KIND_OF_MQ](this);
@@ -31,8 +31,10 @@ var Controller = P(function(_) {
   };
 
   var notifyees = [];
-  this.onNotify = function(f) { notifyees.push(f); };
-  _.notify = function() {
+  this.onNotify = function (f) {
+    notifyees.push(f);
+  };
+  _.notify = function () {
     for (var i = 0; i < notifyees.length; i += 1) {
       notifyees[i].apply(this.cursor, arguments);
     }
