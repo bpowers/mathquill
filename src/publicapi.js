@@ -2,6 +2,8 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
+import { P } from 'pjs';
+
 var API = {},
   Options = P(),
   optionProcessors = {},

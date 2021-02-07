@@ -10,8 +10,6 @@
     ],
     "allowJs": true,
     "strict": true,
-    "noImplicitAny": true,
-    "newLine": "LF",
     "sourceMap": true,
     "declaration": true,
     "removeComments": true,
@@ -22,7 +20,7 @@
     "moduleResolution": "node"
   },
   "include": [
-    "src/tree.js",
+    "src/tree.ts",
     "src/cursor.js",
     "src/controller.js",
     "src/publicapi.js",
@@ -30,6 +28,7 @@
     "src/services/*.js",
     "src/commands/math.js",
     "src/commands/text.js",
-    "src/commands/math/*.js"
+    "src/commands/math/*.js",
+    "src/commands/math/*.ts"
   ]
 }

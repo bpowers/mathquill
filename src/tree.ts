@@ -6,129 +6,114 @@
  * of the tree.
  ************************************************/
 
+import { pray } from './intro';
+
 // L = 'left'
 // R = 'right'
 //
 // the contract is that they can be used as object properties
 // and (-L) === R, and (-R) === L.
-var L = -1;
-var R = 1;
+export enum Dir {
+  L = -1,
+  R = 1,
+}
+export const L = Dir.L;
+export const R = Dir.R;
 
-function prayDirection(dir) {
-  pray('a direction was passed', dir === L || dir === R);
+function prayDirection(dir: number): void {
+  pray('a direction was passed', dir === Dir.L || dir === Dir.R);
 }
 
-/**
- * Tiny extension of jQuery adding directionalized DOM manipulation methods.
- *
- * Funny how Pjs v3 almost just works with `jQuery.fn.init`.
- *
- * jQuery features that don't work on $:
- *   - jQuery.*, like jQuery.ajax, obviously (Pjs doesn't and shouldn't
- *                                            copy constructor properties)
- *
- *   - jQuery(function), the shortcut for `jQuery(document).ready(function)`,
- *     because `jQuery.fn.init` is idiosyncratic and Pjs doing, essentially,
- *     `jQuery.fn.init.apply(this, arguments)` isn't quite right, you need:
- *
- *       _.init = function(s, c) { jQuery.fn.init.call(this, s, c, $(document)); };
- *
- *     if you actually give a shit (really, don't bother),
- *     see https://github.com/jquery/jquery/blob/1.7.2/src/core.js#L889
- *
- *   - jQuery(selector), because jQuery translates that to
- *     `jQuery(document).find(selector)`, but Pjs doesn't (should it?) let
- *     you override the result of a constructor call
- *       + note that because of the jQuery(document) shortcut-ness, there's also
- *         the 3rd-argument-needs-to-be-`$(document)` thing above, but the fix
- *         for that (as can be seen above) is really easy. This problem requires
- *         a way more intrusive fix
- *
- * And that's it! Everything else just magically works because jQuery internally
- * uses `this.constructor()` everywhere (hence calling `$`), but never ever does
- * `this.constructor.find` or anything like that, always doing `jQuery.find`.
- */
-var $ = P(jQuery, function (_) {
-  _.insDirOf = function (dir, el) {
-    return dir === L ? this.insertBefore(el.first()) : this.insertAfter(el.last());
-  };
-  _.insAtDirEnd = function (dir, el) {
-    return dir === L ? this.prependTo(el) : this.appendTo(el);
-  };
-});
+class Point {
+  readonly parent: Point;
+  readonly left: Point;
+  readonly right: Point;
 
-var Point = P(function (_) {
-  _.parent = 0;
-  _[L] = 0;
-  _[R] = 0;
-
-  _.init = function (parent, leftward, rightward) {
+  constructor(parent: Point, leftward: Point, rightward: Point) {
     this.parent = parent;
-    this[L] = leftward;
-    this[R] = rightward;
-  };
+    this.left = leftward;
+    this.right = rightward;
+  }
 
-  this.copy = function (pt) {
-    return Point(pt.parent, pt[L], pt[R]);
-  };
-});
+  get(dir: Dir): Point {
+    switch (dir) {
+      case Dir.L:
+        return this.left;
+      case Dir.R:
+        return this.right;
+    }
+  }
+
+  static copy(pt: Point): Point {
+    return new Point(pt.parent, pt.left, pt.right);
+  }
+}
+
+class NodeEnds {
+  left?: Node;
+  right?: Node;
+
+  set(dir: Dir, end: Node) {
+    switch (dir) {
+      case Dir.L:
+        this.left = end;
+        break;
+      case Dir.R:
+        this.right = end;
+        break;
+    }
+  }
+
+  get(dir: Dir): Node | undefined {
+    switch (dir) {
+      case Dir.L:
+        return this.left;
+      case Dir.R:
+        return this.right;
+    }
+  }
+
+  isEmpty(): boolean {
+    return !this.left && !this.right;
+  }
+}
+
+type NodeId = number;
 
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
-var Node = P(function (_) {
-  _[L] = 0;
-  _[R] = 0;
-  _.parent = 0;
+class Node {
+  readonly id: NodeId;
+  parent?: Node;
+  left?: Node;
+  right?: Node;
+  ends: NodeEnds;
 
-  var id = 0;
-  function uniqueNodeId() {
-    return (id += 1);
+  private static nextId: NodeId = 0;
+  private static uniqueNodeId(): NodeId {
+    const thisId = Node.nextId;
+    Node.nextId += 1;
+    return thisId;
   }
-  this.byId = {};
 
-  _.init = function () {
-    this.id = uniqueNodeId();
-    Node.byId[this.id] = this;
+  private static byId = new Map<NodeId, Node>();
 
-    this.ends = {};
-    this.ends[L] = 0;
-    this.ends[R] = 0;
+  constructor() {
+    this.id = Node.uniqueNodeId();
+    Node.byId.set(this.id, this);
+    this.ends = new NodeEnds();
   };
 
-  _.dispose = function () {
-    delete Node.byId[this.id];
+  dispose(): void {
+    Node.byId.delete(this.id);
+  }
+
+  toString(): string {
+    return `{{ MathQuill Node #${this.id} }}`;
   };
 
-  _.toString = function () {
-    return '{{ MathQuill Node #' + this.id + ' }}';
-  };
-
-  _.jQ = $();
-  _.jQadd = function (jQ) {
-    return (this.jQ = this.jQ.add(jQ));
-  };
-  _.jQize = function (jQ) {
-    // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ = $(jQ || this.html());
-
-    function jQadd(el) {
-      if (el.getAttribute) {
-        var cmdId = el.getAttribute('mathquill-command-id');
-        var blockId = el.getAttribute('mathquill-block-id');
-        if (cmdId) Node.byId[cmdId].jQadd(el);
-        if (blockId) Node.byId[blockId].jQadd(el);
-      }
-      for (el = el.firstChild; el; el = el.nextSibling) {
-        jQadd(el);
-      }
-    }
-
-    for (var i = 0; i < jQ.length; i += 1) jQadd(jQ[i]);
-    return jQ;
-  };
-
-  _.createDir = function (dir, cursor) {
+  createDir(dir: Dir, cursor) {
     prayDirection(dir);
     var node = this;
     node.jQize();
@@ -162,16 +147,16 @@ var Node = P(function (_) {
     return this;
   });
 
-  _.isEmpty = function () {
-    return this.ends[L] === 0 && this.ends[R] === 0;
+  isEmpty(): boolean {
+    return this.ends.isEmpty();
   };
 
-  _.isStyleBlock = function () {
+  isStyleBlock(): boolean {
     return false;
   };
 
-  _.children = function () {
-    return Fragment(this.ends[L], this.ends[R]);
+  children(): Fragment {
+    return new Fragment(this.ends.left, this.ends.right);
   };
 
   _.eachChild = function () {
@@ -243,14 +228,18 @@ function prayWellFormed(parent, leftward, rightward) {
  * DocumentFragment, whose contents must be detached from the visible tree
  * and have their 'parent' pointers set to the DocumentFragment).
  */
-var Fragment = P(function (_) {
-  _.init = function (withDir, oppDir, dir) {
-    if (dir === undefined) dir = L;
+class Fragment {
+  readonly ends: NodeEnds;
+
+  constructor(withDir: Node, oppDir: Node, dir?: Dir) {
+    if (dir === undefined) {
+      dir = L;
+    }
     prayDirection(dir);
 
     pray('no half-empty fragments', !withDir === !oppDir);
 
-    this.ends = {};
+    this.ends = new NodeEnds();
 
     if (!withDir) return;
 
@@ -258,8 +247,8 @@ var Fragment = P(function (_) {
     pray('oppDir is passed to Fragment', oppDir instanceof Node);
     pray('withDir and oppDir have the same parent', withDir.parent === oppDir.parent);
 
-    this.ends[dir] = withDir;
-    this.ends[-dir] = oppDir;
+    this.ends.set(dir, withDir);
+    this.ends.set(-dir, oppDir);
 
     // To build the jquery collection for a fragment, accumulate elements
     // into an array and then call jQ.add once on the result. jQ.add sorts the

@@ -8,8 +8,7 @@
  * one at http://mozilla.org/MPL/2.0/.
  */
 
-var undefined,
-  mqCmdId = 'mathquill-command-id',
+const mqCmdId = 'mathquill-command-id',
   mqBlockId = 'mathquill-block-id',
   min = Math.min,
   max = Math.max;
@@ -24,15 +23,15 @@ function noop() {}
  *   var doStuff = variadic(function(first, rest) { return rest; });
  *   doStuff(1, 2, 3); // => [2, 3]
  */
-var __slice = [].slice;
-function variadic(fn) {
-  var numFixedArgs = fn.length - 1;
-  return function () {
-    var args = __slice.call(arguments, 0, numFixedArgs);
-    var varArg = __slice.call(arguments, numFixedArgs);
-    return fn.apply(this, args.concat([varArg]));
-  };
-}
+// var __slice = [].slice;
+// function variadic(fn) {
+//   var numFixedArgs = fn.length - 1;
+//   return function () {
+//     var args = __slice.call(arguments, 0, numFixedArgs);
+//     var varArg = __slice.call(arguments, numFixedArgs);
+//     return fn.apply(this, args.concat([varArg]));
+//   };
+// }
 
 /**
  * A utility higher-order function that makes combining object-oriented
@@ -49,11 +48,11 @@ function variadic(fn) {
  *   sendMethod(obj2, 3); // => 5
  *   sendMethod(obj2, 4); // => 6
  */
-var send = variadic(function (method, args) {
-  return variadic(function (obj, moreArgs) {
-    if (method in obj) return obj[method].apply(obj, args.concat(moreArgs));
-  });
-});
+// var send = variadic(function (method, args) {
+//   return variadic(function (obj, moreArgs) {
+//     if (method in obj) return obj[method].apply(obj, args.concat(moreArgs));
+//   });
+// });
 
 /**
  * A utility higher-order function that creates "implicit iterators"
@@ -80,26 +79,26 @@ var send = variadic(function (method, args) {
  *   // the function object created by iterator() which does not have a
  *   // .method() method, so that just fails silently.
  */
-function iterator(generator) {
-  return variadic(function (fn, args) {
-    if (typeof fn !== 'function') fn = send(fn);
-    var yield_ = function (obj) {
-      return fn.apply(obj, [obj].concat(args));
-    };
-    return generator.call(this, yield_);
-  });
-}
+// function iterator(generator) {
+//   return variadic(function (fn, args) {
+//     if (typeof fn !== 'function') fn = send(fn);
+//     var yield_ = function (obj) {
+//       return fn.apply(obj, [obj].concat(args));
+//     };
+//     return generator.call(this, yield_);
+//   });
+// }
 
 /**
  * sugar to make defining lots of commands easier.
  * TODO: rethink this.
  */
-function bind(cons /*, args... */) {
-  var args = __slice.call(arguments, 1);
-  return function () {
-    return cons.apply(this, args);
-  };
-}
+// function bind(cons /*, args... */) {
+//   var args = __slice.call(arguments, 1);
+//   return function () {
+//     return cons.apply(this, args);
+//   };
+// }
 
 /**
  * a development-only debug method.  This definition and all
@@ -111,6 +110,6 @@ function bind(cons /*, args... */) {
  * with the same name, and only call this function by
  * name.
  */
-function pray(message, cond) {
+export function pray(message: string, cond: boolean): void {
   if (!cond) throw new Error('prayer failed: ' + message);
 }
