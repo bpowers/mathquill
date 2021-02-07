@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "outDir": "build",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2020"
+    ],
+    "allowJs": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "newLine": "LF",
+    "sourceMap": true,
+    "declaration": true,
+    "removeComments": true,
+    "strictNullChecks": true,
+    "noUnusedLocals": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/tree.js",
+    "src/cursor.js",
+    "src/controller.js",
+    "src/publicapi.js",
+    "src/services/*.util.js",
+    "src/services/*.js",
+    "src/commands/math.js",
+    "src/commands/text.js",
+    "src/commands/math/*.js"
+  ]
+}

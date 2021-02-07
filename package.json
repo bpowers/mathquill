@@ -13,11 +13,17 @@
     "build/fonts/Symbola.*",
     "quickstart.html"
   ],
+  "scripts": {
+    "format": "prettier --single-quote --trailing-comma all --write \"{src,test}/*.js\"",
+    "build": "tsc"
+  },
   "devDependencies": {
     "jquery": "^3.5.1",
     "less": "^4.1.1",
     "mocha": "^8.2.1",
     "pjs": "^4.0.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.1.3",
     "uglify-js": "^3.12.7"
   }
 }

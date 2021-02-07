@@ -125,7 +125,7 @@ clean:
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
 $(BUILD_JS_SRC): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
+	cat $^ > $@
 	$(SED_IN_PLACE) -e "s/{VERSION}/v$(VERSION)/" -e "s/^/  /" $@
 
 $(BUILD_BROWSER_JS): $(BUILD_JS_SRC)
