@@ -1,7 +1,7 @@
 {
-  "name": "mathquill",
+  "name": "@system-dynamics/mathquill",
   "description": "Easily type math in your webapp",
-  "version": "0.10.1",
+  "version": "0.11.0",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
@@ -17,8 +17,10 @@
     "format": "prettier --single-quote --trailing-comma all --write \"{src,test}/*.js\"",
     "build": "tsc"
   },
+  "dependencies": {
+    "jquery": "^3.5.1"
+  },
   "devDependencies": {
-    "jquery": "^3.5.1",
     "less": "^4.1.1",
     "mocha": "^8.2.1",
     "pjs": "^4.0.0",
